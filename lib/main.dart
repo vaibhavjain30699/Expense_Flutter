@@ -70,6 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Widget listBody(){
       if(_transactions.length>0){
         return ListView.builder(
+          physics: BouncingScrollPhysics(),
           itemCount: _transactions.length,
           itemBuilder: (BuildContext context,int index){
             Color background,textColor;
