@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -45,10 +46,35 @@ class ExpenseDBManger{
     return database.insert('records', item.toMap());
   }
 
+  Future<List<ExpenseItem>> getMonthlyTransactions() async{
+    await openDB();
+    List<Map<String,dynamic>> result = await database.query('records');
+    List<ExpenseItem> ans = List.generate(result.length, (i){
+      return ExpenseItem(
+          id: result[i]['id'],
+          amount: result[i]['amount'],
+          type: result[i]['type'],
+          date: result[i]['date'],
+          time: result[i]['time']
+      );
+    });
+
+    List<ExpenseItem> ans1 = new List<ExpenseItem>();
+    DateTime date = new DateTime.now();
+    for(int i=0;i<ans.length;i++){
+      DateTime t = new DateFormat("dd-MM-yyyy","en_US").parse(ans[i].date);
+      if(t.month == date.month)
+        ans1.add(ans[i]);
+    }
+    print(ans1.length);
+    return ans1;
+  }
+
   Future<List<ExpenseItem>> getAllItems() async{
     //  print('aa');
     await openDB();
-    final List<Map<String,dynamic>> result = await database.query('records');
+    List<Map<String,dynamic>> result = await database.query('records');
+    result = result.reversed.toList();
     return List.generate(result.length, (i){
       return ExpenseItem(
           id: result[i]['id'],
